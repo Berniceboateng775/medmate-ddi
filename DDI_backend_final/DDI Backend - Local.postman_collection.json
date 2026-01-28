@@ -1,0 +1,292 @@
+{
+  "info": {
+    "_postman_id": "2c2c9e4f-3d4f-4a7b-9ccc-000000000001",
+    "name": "DDI Backend - Local",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "End-to-end: JWT login → invite admin → accept → invite doctor → accept → create drug/patient/med → DDI"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Superuser Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/auth/login/" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{su_email}}\",\n  \"password\": \"{{su_password}}\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "if (pm.response.code === 200) {",
+                "  const json = pm.response.json();",
+                "  pm.environment.set('su_access', json.access || '');",
+                "  pm.environment.set('su_refresh', json.refresh || '');",
+                "} else {",
+                "  pm.environment.unset('su_access');",
+                "  pm.environment.unset('su_refresh');",
+                "}",
+                "pm.test('Login returned access token', function () {",
+                "  pm.expect(pm.environment.get('su_access')).to.be.ok;",
+                "});"
+              ],
+              "type": "text/javascript"
+            }
+          }]
+        },
+        {
+          "name": "Superuser Me (sanity)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{su_access}}" }],
+            "url": { "raw": "{{base_url}}/api/auth/user/" }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const j = pm.response.json();",
+                "pm.test('Has role field', function () { pm.expect(j.role).to.be.ok; });"
+              ],
+              "type": "text/javascript"
+            }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "Invitations",
+      "item": [
+        {
+          "name": "SU → Invite Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{su_access}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/su/invitations/admin/" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@citygeneral.org\",\n  \"hospital\": {\n    \"name\": \"City General Hospital\",\n    \"registration_number\": \"HOSP-001\",\n    \"address\": \"123 Main St\",\n    \"contact_email\": \"info@citygeneral.org\",\n    \"contact_phone\": \"+123456700\"\n  }\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const json = pm.response.json();",
+                "pm.environment.set('invite_code', json.code || '');",
+                "pm.test('Saved invite code', function () { pm.expect(pm.environment.get('invite_code')).to.be.ok; });"
+              ],
+              "type": "text/javascript"
+            }
+          }]
+        },
+        {
+          "name": "Invitation Info",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/invitations/{{invite_code}}/" } },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const j = pm.response.json();",
+                "pm.test('Invite valid (not used/expired)', function () {",
+                "  pm.expect(j.is_used).to.eql(false);",
+                "  pm.expect(j.is_expired).to.eql(false);",
+                "});"
+              ],
+              "type": "text/javascript"
+            }
+          }]
+        },
+        {
+          "name": "Invitation Accept (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/invitations/{{invite_code}}/accept/" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"VeryStrongPassw0rd!!\",\n  \"first_name\": \"Ada\",\n  \"last_name\": \"Lovelace\",\n  \"phone\": \"+123\",\n  \"position\": \"Hospital Manager\",\n  \"staff_badge_number\": \"ADM-001\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const json = pm.response.json();",
+                "pm.environment.set('admin_access', json.access || '');",
+                "pm.test('Admin access saved', function () { pm.expect(pm.environment.get('admin_access')).to.be.ok; });"
+              ],
+              "type": "text/javascript"
+            }
+          }]
+        },
+        {
+          "name": "Admin Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_access}}" }],
+            "url": { "raw": "{{base_url}}/api/auth/user/" }
+          }
+        },
+        {
+          "name": "Admin → Invite Professional (DOCTOR)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_access}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/admin/invitations/professional/" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"doc@citygeneral.org\",\n  \"professional_role\": \"DOCTOR\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const json = pm.response.json();",
+                "pm.environment.set('invite_code', json.code || '');",
+                "pm.test('Saved professional invite code', function () { pm.expect(pm.environment.get('invite_code')).to.be.ok; });"
+              ],
+              "type": "text/javascript"
+            }
+          }]
+        },
+        {
+          "name": "Invitation Accept (Doctor)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/invitations/{{invite_code}}/accept/" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"Another$trongPass12\",\n  \"first_name\": \"Gregory\",\n  \"last_name\": \"House\",\n  \"phone\": \"+233555000\",\n  \"specialization\": \"Nephrology\",\n  \"license_number\": \"MD-123456\",\n  \"department\": \"Outpatient Clinic\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const json = pm.response.json();",
+                "pm.environment.set('prof_access', json.access || '');",
+                "pm.test('Doctor access saved', function () { pm.expect(pm.environment.get('prof_access')).to.be.ok; });"
+              ],
+              "type": "text/javascript"
+            }
+          }]
+        },
+        {
+          "name": "Doctor Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{prof_access}}" }],
+            "url": { "raw": "{{base_url}}/api/auth/user/" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clinical",
+      "item": [
+        {
+          "name": "Create Drug",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{prof_access}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/drugs/" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Warfarin\",\n  \"atc_code\": \"B01AA03\"\n}" }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const j = pm.response.json();",
+                "pm.environment.set('drug_id', String(j.id || ''));",
+                "pm.test('Saved drug_id', function () { pm.expect(pm.environment.get('drug_id')).to.be.ok; });"
+              ],
+              "type": "text/javascript"
+            }
+          }]
+        },
+        {
+          "name": "Create Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{prof_access}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/patients/" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"J. Doe\",\n  \"dob\": \"1980-03-05\",\n  \"gender\": \"Male\",\n  \"phone\": \"+1000000\",\n  \"email\": \"j.doe@example.com\",\n  \"allergies\": \"Penicillin\",\n  \"past_adverse_reactions\": \"Nausea with metformin\",\n  \"medical_conditions\": \"CKD stage 3; Type 2 diabetes\",\n  \"genetic_info\": \"CYP2D6 poor metabolizer\",\n  \"weight_kg\": 82,\n  \"height_cm\": 178,\n  \"blood_type\": \"O+\",\n  \"emergency_contact\": \"Jane Doe +1000001\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const j = pm.response.json();",
+                "pm.environment.set('patient_pk', String(j.id || ''));",
+                "pm.environment.set('patient_code', j.patient_id || '');",
+                "pm.test('Saved patient_pk and patient_code', function () {",
+                "  pm.expect(pm.environment.get('patient_pk')).to.be.ok;",
+                "  pm.expect(pm.environment.get('patient_code')).to.be.ok;",
+                "});"
+              ],
+              "type": "text/javascript"
+            }
+          }]
+        },
+        {
+          "name": "Create Medication",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{prof_access}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/medications/" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient\": {{patient_pk}},\n  \"drug\": {{drug_id}},\n  \"dosage\": \"5 mg\",\n  \"frequency\": \"qd\",\n  \"is_current\": true\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const j = pm.response.json();",
+                "pm.environment.set('medication_id', String(j.id || ''));",
+                "pm.test('Saved medication_id', function () { pm.expect(pm.environment.get('medication_id')).to.be.ok; });"
+              ],
+              "type": "text/javascript"
+            }
+          }]
+        },
+        {
+          "name": "Patient DDI",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{prof_access}}" }],
+            "url": { "raw": "{{base_url}}/api/patients/{{patient_code}}/ddi/" }
+          }
+        }
+      ]
+    }
+  ]
+}

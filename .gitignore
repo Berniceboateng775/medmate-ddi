@@ -1,0 +1,14 @@
+﻿venv/
+node_modules/
+*.sqlite3
+*.log
+.DS_Store
+.env
+.env.local
+__pycache__/
+*.pyc
+staticfiles/
+
+# Exclude Large ML Model folders (Hosted on Hugging Face)
+Drug Interaction Prediction Model/
+Drug Interaction Severity Prediction Model/

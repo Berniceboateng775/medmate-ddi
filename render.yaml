@@ -1,0 +1,42 @@
+# render.yaml — Django + Postgres (Render Managed DB)
+databases:
+  - name: medmate-db
+    plan: free
+
+services:
+  - type: web
+    name: medmate-backend
+    env: python
+    rootDir: DDI_backend_final
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+    startCommand: gunicorn DDI_backend_final.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --timeout 120
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medmate-db
+          property: connectionString
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        value: "medmateorg@outlook.com"
+      - key: FRONTEND_ORIGIN
+        sync: false
+      - key: WEBAUTHN_ORIGIN
+        sync: false
+      - key: RP_ID
+        sync: false
+      - key: HF_TOKEN
+        sync: false
+      - key: HF_SPACE_FREDA
+        value: "Fredaaaaaa/smilesssssss"
+      - key: HF_SPACE_BERNICE
+        value: "Bernice775/t5-ddi-api"
+    healthCheckPath: /_health
+    autoDeploy: true
