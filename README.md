@@ -8,6 +8,17 @@ A comprehensive healthcare application for checking drug-drug interactions (DDI)
 ![React](https://img.shields.io/badge/React-19-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
 
+## 🔗 Live Demo
+
+**🌐 Try the App**: [https://medmate-ddi.vercel.app](https://medmate-ddi.vercel.app)
+
+**📡 API Documentation**: [https://medmate-backend-0hgo.onrender.com/api/docs/](https://medmate-backend-0hgo.onrender.com/api/docs/)
+
+### Demo Video
+
+https://github.com/Berniceboateng775/medmate-ddi/raw/main/demo/Live%20demo%20of%20working%20app.mp4
+
+
 ## 🌟 Features
 
 - **Drug-Drug Interaction Checking**: AI-powered DDI detection using HuggingFace Spaces

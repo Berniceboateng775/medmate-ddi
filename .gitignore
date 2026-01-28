@@ -1,14 +1,33 @@
-﻿venv/
+﻿# Virtual environments
+venv/
 node_modules/
+
+# Database
 *.sqlite3
+db.sqlite3
+
+# Logs
 *.log
+
+# OS files
 .DS_Store
+
+# Sensitive files
 .env
 .env.local
+
+# Python cache
 __pycache__/
 *.pyc
+
+# Static files (generated)
 staticfiles/
 
-# Exclude Large ML Model folders (Hosted on Hugging Face)
+# Large ML model directories (hosted on HuggingFace)
 Drug Interaction Prediction Model/
 Drug Interaction Severity Prediction Model/
+
+# Large demo videos (upload via GitHub Issues instead)
+demo/*.mp4
+demo/*.mov
+demo/*.avi
