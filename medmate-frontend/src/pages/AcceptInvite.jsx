@@ -57,7 +57,7 @@ export default function AcceptInvite() {
     const errors = {}
     if (!form.first_name.trim()) errors.first_name = "First name is required"
     if (!form.last_name.trim()) errors.last_name = "Last name is required"
-    if (!form.password || form.password.length < 6) errors.password = "Password must be at least 6 characters"
+    if (!form.password || form.password.length < 12) errors.password = "Password must be at least 12 characters"
 
     const inviteType = (invite.invite_type || "").toUpperCase()
     if (inviteType !== "ADMIN") {
@@ -87,7 +87,14 @@ export default function AcceptInvite() {
       else if (role === "PHARMACIST") navigate("/pharmacist", { replace: true })
       else navigate("/", { replace: true })
     } catch (e) {
-      setError(e?.response?.data?.detail || "Failed to accept invitation.")
+      const errData = e?.response?.data
+      if (typeof errData === "object" && !errData.detail) {
+        // Handle validation errors object
+        const messages = Object.entries(errData).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join("; ")
+        setError(messages || "Failed to accept invitation.")
+      } else {
+        setError(errData?.detail || errData?.non_field_errors?.[0] || "Failed to accept invitation.")
+      }
     } finally {
       setSubmitting(false)
     }
@@ -297,7 +304,7 @@ export default function AcceptInvite() {
                   />
                   {formErrors.password && <p className="text-red-600 text-xs mt-1">{formErrors.password}</p>}
                   <p className="text-xs text-gray-500 mt-1">
-                    Use at least 6 characters with a mix of letters, numbers, and symbols
+                    Use at least 12 characters with a mix of letters, numbers, and symbols
                   </p>
                 </div>
               </div>
