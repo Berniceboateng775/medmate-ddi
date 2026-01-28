@@ -1,10 +1,9 @@
 // src/services/api.js
 import axios from "axios";
 
-// TEMPORARY: Hardcode production API URL for testing
-const API_BASE = "https://ddi-2n0x.onrender.com/api";
-// Original code (commented out):
-// const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api").replace(/\/$/, "");
+// Use environment variable for API URL (defaults to local for development)
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api").replace(/\/$/, "");
+
 
 const API = axios.create({
   baseURL: API_BASE,

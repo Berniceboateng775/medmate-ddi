@@ -1,6 +1,7 @@
 # DDI_backend_final/urls.py
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 from .admin import admin_site
 
 from rest_framework.routers import DefaultRouter
@@ -53,6 +54,8 @@ med_detail = MedicationViewSet.as_view({
 })
 
 urlpatterns = [
+    # Redirect root to admin
+    path("", RedirectView.as_view(url="/admin/", permanent=False)),
     path("admin/", admin_site.urls),
 
     # ----- Auth (custom JWT login first) -----
