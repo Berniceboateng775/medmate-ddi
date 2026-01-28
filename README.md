@@ -16,7 +16,27 @@ A comprehensive healthcare application for checking drug-drug interactions (DDI)
 
 ### Demo Video
 
-<video src="demo/Live demo of working app -medmate.mp4" controls width="100%"></video>
+https://github.com/Berniceboateng775/medmate-ddi/assets/demo/Live%20demo%20of%20working%20app%20-medmate.mp4
+
+> 📹 Click the link above to watch the demo video
+
+### Screenshots
+
+#### Homepage
+*The AI Platform for Medication Safety - Advanced drug interaction analysis trusted by healthcare professionals*
+![Homepage](demo/homepage.png)
+
+#### Drug Interaction Checker
+*Enter drug names and get instant AI-powered analysis with severity classifications*
+![DDI Checker](demo/ddi-checker.png)
+
+#### Analysis Results
+*Detailed interaction descriptions, extended explanations, and clinical recommendations*
+![Analysis Results](demo/analysis-results.png)
+
+#### Healthcare Provider Login
+*Secure login for medical professionals with passkey support*
+![Login Page](demo/login-page.png)
 
 
 ## 🌟 Features
