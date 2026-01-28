@@ -26,8 +26,3 @@ staticfiles/
 # Large ML model directories (hosted on HuggingFace)
 Drug Interaction Prediction Model/
 Drug Interaction Severity Prediction Model/
-
-# Large demo videos (upload via GitHub Issues instead)
-demo/*.mp4
-demo/*.mov
-demo/*.avi
