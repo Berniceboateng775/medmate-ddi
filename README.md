@@ -16,7 +16,7 @@ A comprehensive healthcare application for checking drug-drug interactions (DDI)
 
 ### Demo Video
 
-https://github.com/Berniceboateng775/medmate-ddi/assets/demo/Live%20demo%20of%20working%20app%20-medmate.mp4
+[📹 Click here to watch the demo video](https://github.com/Berniceboateng775/medmate-ddi/raw/main/demo/Live%20demo%20of%20working%20app%20-medmate.mp4)
 
 > 📹 Click the link above to watch the demo video
 
